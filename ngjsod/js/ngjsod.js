@@ -7,12 +7,12 @@
             var y = 40;
             drawJavascriptObject(svg, gr, objectName, value, x, y);
             value = value.constructor.prototype.__proto__;
-            x += 1340;
+            x += 1200;
             y += 96;
             if (value) {
                 drawJavascriptObject(svg, gr, '{}', value, x, y);
                 value = value.constructor.prototype.__proto__;
-                x += 1340;
+                x += 1200;
                 y += 96;
             }
         }
@@ -20,7 +20,7 @@
         function drawJavascriptObject(svg, gr, label, value, ox, oy) {
             // Simple jQuery SVG Text examples
             var boxHeight = 24;
-            var boxWidth = 360;
+            var boxWidth = 320;
             var g = svg.group(gr, 'g', {fontFamily: 'Courier', fontSize: '12'});
 
             var x = ox;
@@ -48,7 +48,9 @@
             var props = [];
             for(var prop in value) {
                 var propValue = value[prop];
-                if (angular.isFunction(propValue)) {
+                if (propValue === null) {
+                    props.push(prop + ' : nullN');
+                } else if (angular.isFunction(propValue)) {
                     continue;
                 } else if (angular.isArray(propValue)) {
                     props.push((propValue.constructor && propValue.constructor.name) + ' ' + prop + '[ ]A');
@@ -63,7 +65,6 @@
                 }
             }
             props.sort();
-
 
             var funcs = [];
             for(var prop in value) {
@@ -81,7 +82,7 @@
                 var text = props[i];
                 var type = text.substring(text.length - 1);
                 text = text.substring(0, text.length - 1);
-                if (type === 'F') {
+                if (type === 'F' || type == 'O' || type === 'A' || type === 'N') {
                     tooltip = text;
                 } else {
                     tooltip = text.substring(text.indexOf(' : ')+2);
@@ -105,6 +106,8 @@
                     svg.image(g, x+2, y+4, 16, 16, 'icons/number.png');
                 } else if (type === '-') {
                     svg.image(g, x+2, y+4, 16, 16, 'icons/property.png');
+                } else if (type === 'N') {
+                    svg.image(g, x+2, y+4, 16, 16, 'icons/null.png');
                 }
 
             }
