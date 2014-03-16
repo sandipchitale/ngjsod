@@ -5,7 +5,10 @@
 		<link rel="stylesheet" type="text/css" href="css/jquery.svg.css">
 	</head>
 	<body>
-		<div ng-jsod object-name="document.location"></div>
+		<div ng-controller="NGJSODController">
+			Show object diagram of <input ng-model="data.objectName" cols="40" />
+			<div ng-jsod object-name="{{data.objectName}}"></div>
+		</div>
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 		<script src="http://code.angularjs.org/1.2.1/angular.min.js"></script>
 		<script type="text/javascript" src="js/jquery.svg.js"></script>

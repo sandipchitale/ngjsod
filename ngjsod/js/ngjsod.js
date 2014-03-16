@@ -1,29 +1,27 @@
 (function() {
     angular.module('NGJSOD', [])
     .directive('ngJsod', function() {
-        function drawGraph(svg, objectName) {
+        function drawGraph(svg, gr, objectName) {
             var value = eval(objectName);
             var x = 40;
             var y = 40;
-            drawJavascriptObject(svg, objectName, value, x, y);
+            drawJavascriptObject(svg, gr, objectName, value, x, y);
             value = value.constructor.prototype.__proto__;
             x += 1340;
             y += 96;
             if (value) {
-                drawJavascriptObject(svg, '{}', value, x, y);
+                drawJavascriptObject(svg, gr, '{}', value, x, y);
                 value = value.constructor.prototype.__proto__;
                 x += 1340;
                 y += 96;
             }
         }
 
-        function drawJavascriptObject(svg, label, value, ox, oy) {
+        function drawJavascriptObject(svg, gr, label, value, ox, oy) {
             // Simple jQuery SVG Text examples
             var boxHeight = 24;
             var boxWidth = 360;
-            var g = svg.group(
-                {fontFamily: 'Courier', fontSize: '12'}
-            );
+            var g = svg.group(gr, 'g', {fontFamily: 'Courier', fontSize: '12'});
 
             var x = ox;
             var y = oy;
@@ -162,10 +160,21 @@
                     var defs = svg.defs(null, "jsoddefs")
                     var arrow = svg.marker(defs, 'arrow', 9, 6, 13, 13);
                     var arrowHead = svg.createPath();
-                    //<path d="M2,2 L2,11 L10,6 L2,2" style="fill: #000000;" />
                     svg.path(arrow, arrowHead.move(2,2).line(2,11).
                         line(10, 6).line(2,2).close(), {fill: '#000000'});
-                    drawGraph(svg, scope.objectName);
+                    var g = svg.group(
+                        {fontFamily: 'Courier', fontSize: '12'}
+                    )
+                    drawGraph(svg, g, scope.objectName);
+                    scope.$watch('objectName', function() {
+                        $(g).empty();
+                        try {
+                            if (eval(scope.objectName)) {
+                                drawGraph(svg, g, scope.objectName);
+                            }
+                        } catch (e) {
+                        }
+                    });
                 });
             }
         };
