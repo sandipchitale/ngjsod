@@ -151,10 +151,13 @@
 
         }
         return {
-            restrict : 'E',
+            restrict : 'AE',
+            scope: {
+                objectName: '@'
+            },
             template : '<div style="border: 1px solid gray; overflow: auto;"></div>',
             replace : true,
-            link : function(scope, elem, attrs) {
+            link : function(scope, elem) {
                 elem.svg(function(svg) {
                     var defs = svg.defs(null, "jsoddefs")
                     var arrow = svg.marker(defs, 'arrow', 9, 6, 13, 13);
@@ -162,7 +165,7 @@
                     //<path d="M2,2 L2,11 L10,6 L2,2" style="fill: #000000;" />
                     svg.path(arrow, arrowHead.move(2,2).line(2,11).
                         line(10, 6).line(2,2).close(), {fill: '#000000'});
-                    drawGraph(svg, attrs.objectName);
+                    drawGraph(svg, scope.objectName);
                 });
             }
         };
