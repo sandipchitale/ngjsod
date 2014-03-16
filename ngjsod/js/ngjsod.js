@@ -47,6 +47,9 @@
 
             var props = [];
             for(var prop in value) {
+                if (!value.hasOwnProperty(prop)) {
+                    continue;
+                }
                 var propValue = value[prop];
                 if (propValue === null) {
                     props.push(prop + ' : nullN');
@@ -68,7 +71,104 @@
 
             var funcs = [];
             for(var prop in value) {
+                if (!value.hasOwnProperty(prop)) {
+                    continue;
+                }
                 var propValue = value[prop];
+                if (angular.isFunction(propValue)) {
+                    funcs.push(prop + '()F');
+                }
+            }
+            funcs.sort();
+
+            props = props.concat(funcs);
+
+            for(var i = 0; i < props.length; i++) {
+                y += boxHeight;
+                var text = props[i];
+                var type = text.substring(text.length - 1);
+                text = text.substring(0, text.length - 1);
+                if (type === 'F' || type == 'O' || type === 'A' || type === 'N') {
+                    tooltip = text;
+                } else {
+                    tooltip = text.substring(text.indexOf(' : ')+2);
+                    text = text.substring(0, text.indexOf(' : '));
+                }
+                var rect = svg.rect(g, x, y, boxWidth, boxHeight,  {fill: 'white', stroke: 'black', strokeWidth: '1'});
+                svg.title(rect, tooltip);
+                svg.text(g, x+20, y+16, text, {fill: 'black'});
+
+                if (type === 'A') {
+                    svg.image(g, x+2, y+4, 16, 16, 'icons/array.png');
+                } else if (type === 'O') {
+                    svg.image(g, x+2, y+4, 16, 16, 'icons/object.png');
+                } else if (type === 'S') {
+                    svg.image(g, x+2, y+4, 16, 16, 'icons/string.png');
+                } else if (type === 'F') {
+                    svg.image(g, x+2, y+4, 16, 16, 'icons/function.png');
+                } else if (type === 'B') {
+                    svg.image(g, x+2, y+4, 16, 16, 'icons/boolean.png');
+                } else if (type === '#') {
+                    svg.image(g, x+2, y+4, 16, 16, 'icons/number.png');
+                } else if (type === '-') {
+                    svg.image(g, x+2, y+4, 16, 16, 'icons/property.png');
+                } else if (type === 'N') {
+                    svg.image(g, x+2, y+4, 16, 16, 'icons/null.png');
+                }
+            }
+
+            var x = ox+boxWidth+boxWidth/4;
+            var y = oy + 2*boxHeight;
+            svg.rect(g, x, y, boxWidth, boxHeight,  {fill: 'white', stroke: 'gray', strokeWidth: '1'});
+            svg.image(g, x+2, y+4, 16, 16, 'icons/object.png');
+            svg.text(g, x+20, y+16, (value.__proto__ && value.__proto__.__proto__ && value.__proto__.__proto__.constructor.name) + ' {}', {fill: 'black'});
+            svg.line(g, x+(boxWidth+(boxWidth/4)), y+12, x+boxWidth, y+12, {stroke: 'black', markerEnd: 'url(#arrow)'});
+            y += boxHeight;
+            svg.rect(g, x, y, boxWidth, boxHeight,  {fill: 'white', stroke: 'gray'});
+            svg.image(g, x+2, y+4, 16, 16, 'icons/function.png');
+            svg.text(g, x+20, y+16, 'constructor', {fill: 'black'});
+            svg.line(g, x+boxWidth, y+12, x+(boxWidth+(boxWidth/8)), y+12,  {stroke: 'black'});
+            svg.line(g, x+(boxWidth+(boxWidth/8)), y+12, x+(boxWidth+(boxWidth/8)), y-(boxHeight+(boxHeight/2)),  {stroke: 'black'});
+            svg.line(g, x+(boxWidth+(boxWidth/8)), y-(boxHeight+(boxHeight/2)), x+(boxWidth+(boxWidth/4)), y-(boxHeight+(boxHeight/2)), {stroke: 'black', markerEnd: 'url(#arrow)'});
+            y += boxHeight;
+            svg.rect(g, x, y, boxWidth, boxHeight,  {fill: 'white', stroke: 'gray'});
+            svg.image(g, x+2, y+4, 16, 16, 'icons/object.png');
+            svg.text(g, x+20, y+16, '__proto__', {fill: 'black'});
+            if (value.__proto__) {
+                svg.line(g, x+boxWidth, y+12, x+(boxWidth*2.25), y+12,  {stroke: 'black'});
+            }
+
+            var props = [];
+            var value__proto__ = value.__proto__;
+            for(var prop in value__proto__) {
+                if (!value__proto__.hasOwnProperty(prop)) {
+                    continue;
+                }
+                var propValue = value__proto__[prop];
+                if (propValue === null) {
+                    props.push(prop + ' : nullN');
+                } else if (angular.isFunction(propValue)) {
+                    continue;
+                } else if (angular.isArray(propValue)) {
+                    props.push((propValue.constructor && propValue.constructor.name) + ' ' + prop + '[ ]A');
+                } else if (angular.isString(propValue)) {
+                    props.push(prop + ' : \'' + propValue.substring(0,36) + '\'S');
+                } else if (angular.isObject(propValue)) {
+                    props.push((propValue.constructor && propValue.constructor.name) + ' ' + prop + 'O');
+                } else if (angular.isNumber(propValue)) {
+                    props.push(prop + ' : ' + propValue + '#');
+                } else {
+                    props.push(prop + ' : ' + propValue + (typeof propValue === 'boolean' ? 'B' : '-'));
+                }
+            }
+            props.sort();
+
+            var funcs = [];
+            for(var prop in value__proto__) {
+                if (!value__proto__.hasOwnProperty(prop)) {
+                    continue;
+                }
+                var propValue = value__proto__[prop];
                 if (angular.isFunction(propValue)) {
                     funcs.push(prop + '()F');
                 }
@@ -112,27 +212,7 @@
 
             }
 
-            var x = ox+boxWidth+boxWidth/4;
-            var y = oy + 2*boxHeight;
-            svg.rect(g, x, y, boxWidth, boxHeight,  {fill: 'white', stroke: 'gray', strokeWidth: '1'});
-            svg.image(g, x+2, y+4, 16, 16, 'icons/object.png');
-            svg.text(g, x+20, y+16, (value.__proto__ && value.__proto__.__proto__ && value.__proto__.__proto__.constructor.name) + ' {}', {fill: 'black'});
-            svg.line(g, x+(boxWidth+(boxWidth/4)), y+12, x+boxWidth, y+12, {stroke: 'black', markerEnd: 'url(#arrow)'});
-            y += boxHeight;
-            svg.rect(g, x, y, boxWidth, boxHeight,  {fill: 'white', stroke: 'gray'});
-            svg.image(g, x+2, y+4, 16, 16, 'icons/function.png');
-            svg.text(g, x+20, y+16, 'constructor', {fill: 'black'});
-            svg.line(g, x+boxWidth, y+12, x+(boxWidth+(boxWidth/8)), y+12,  {stroke: 'black'});
-            svg.line(g, x+(boxWidth+(boxWidth/8)), y+12, x+(boxWidth+(boxWidth/8)), y-(boxHeight+(boxHeight/2)),  {stroke: 'black'});
-            svg.line(g, x+(boxWidth+(boxWidth/8)), y-(boxHeight+(boxHeight/2)), x+(boxWidth+(boxWidth/4)), y-(boxHeight+(boxHeight/2)), {stroke: 'black', markerEnd: 'url(#arrow)'});
-            y += boxHeight;
-            svg.rect(g, x, y, boxWidth, boxHeight,  {fill: 'white', stroke: 'gray'});
-            svg.image(g, x+2, y+4, 16, 16, 'icons/object.png');
-            svg.text(g, x+20, y+16, '__proto__', {fill: 'black'});
-            if (value.__proto__) {
-                svg.line(g, x+boxWidth, y+12, x+(boxWidth*2.25), y+12,  {stroke: 'black'});
-            }
-
+            // Constructor function
             var x = ox+boxWidth+boxWidth/4+boxWidth+boxWidth/4;
             var y = oy;
             svg.rect(g, x, y, boxWidth, boxHeight,  {fill: 'white', stroke: 'lightGray'});
